@@ -3,7 +3,7 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
-		_WaterSpeed ("WaterSpeed", float) = 1
+		_WaterSpeed ("WaterSpeed", float) = 1	
 		
 	}
 	SubShader
