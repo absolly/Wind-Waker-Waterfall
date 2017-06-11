@@ -4,9 +4,8 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_WaterSpeed ("WaterSpeed", float) = 1
-		_WaterForce ("WaterForce", float) = 1	
 		_WaterDropOff ("WaterDropOff", Range(2,32)) = 1
-		_WaterBend ("WaterBend", Range(0,4)) = 1
+		_WaterBend ("WaterBend", Range(0,8)) = 1
 	}
 	SubShader
 	{
@@ -42,7 +41,6 @@
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 			float _WaterSpeed;
-			float _WaterForce;
 			float _WaterDropOff;
 			float _WaterBend;
 
@@ -52,10 +50,7 @@
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				fixed4 vert = v.vertex;
 			
-				// -(pow(2,(.8-o.uv.y) * 5))
-				// + (.8-(pow(x+(_WaterBend * .05),_WaterBend+x))*15)
-				//(-pow(o.uv.x-.5,2) * 10) +
-				float x = (1-o.uv.y) * 1;
+				float x = (1-o.uv.y);
 				vert.y = -(x*.1* pow(_WaterDropOff, x) * 20);
 				vert.yz += (-pow(o.uv.x-.5,2) * 10 * (_WaterDropOff/32) * _WaterBend);
 				vert.z += 5;

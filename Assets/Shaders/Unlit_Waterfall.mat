@@ -23,7 +23,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _WaterBend: 3
-    - _WaterDropOff: 11.3
-    - _WaterForce: 1
+    - _WaterDropOff: 10.9
+    - _WaterForce: 3.31
     - _WaterSpeed: 0.79
     m_Colors: []
