@@ -4,15 +4,17 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_WaterSpeed ("WaterSpeed", float) = 1
-		_WaterDropOff ("WaterDropOff", Range(2,32)) = 1
-		_WaterBend ("WaterBend", Range(0,8)) = 1
+		_WaterDropOff ("WaterDropOff", Range(2,32)) = 10
+		_WaterBend ("WaterBend", Range(0,80)) = 30
+		_WaterfallLength ("WaterfallLength", float) = 10
 	}
 	SubShader
 	{
+		//Alpha cutout
 		Tags { "Queue"="AlphaTest" "RenderType"="TransparentCutout" "IgnoreProjector"="True" }
 		LOD 100
 
-
+		//the waterfall planes should be visible on both sides 
 		Cull Off
 		Pass
 		{
@@ -43,20 +45,30 @@
 			float _WaterSpeed;
 			float _WaterDropOff;
 			float _WaterBend;
+			float _WaterfallLength;
 
 			v2f vert (appdata v)
 			{
 				v2f o;
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-				fixed4 vert = v.vertex;
-			
-				float x = (1-o.uv.y);
-				vert.y = -(x*.1* pow(_WaterDropOff, x) * 20);
-				vert.yz += (-pow(o.uv.x-.5,2) * 10 * (_WaterDropOff/32) * _WaterBend);
-				vert.z += 5;
 
-				vert.yz /= (_WaterDropOff*0.1);
-				//vert.y = min(vert.y, 20);
+				//store the vertex in a temp variable before we change it
+				fixed4 vert = v.vertex;
+
+				//make the waterfall go in the z+ direction
+				float z = (1-o.uv.y);
+				//waterfall dropoff formula
+				vert.y = -(z * pow(_WaterDropOff, z) * 2);
+
+				//offset the mesh before scaling so we scale in one direction
+				vert.z += 5;
+				//the waterfall should be longer if the dropoff is smaller otherwise it won't hit the water.
+				vert.yz *= (_WaterfallLength/_WaterDropOff);
+
+				//add the waterbend after the scaling because we don't want the bend to scale with it
+				//Waterbend, x^2 * (WaterDropoff/MaxWaterDropoff) * WaterBend param
+				vert.yz -= pow(o.uv.x-.5,2) * _WaterBend;
+
 				o.vertex = UnityObjectToClipPos(vert);
 				UNITY_TRANSFER_FOG(o,o.vertex);
 				return o;
@@ -64,7 +76,7 @@
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				// sample the texture
+				//Scrolling water texture
 				fixed4 col = tex2D(_MainTex, i.uv + float2(0,_Time.y * _WaterSpeed));
 				clip(col.a - 0.9);
 				// apply fog
