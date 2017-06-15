@@ -3636,11 +3636,13 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: WaterfallLength
       m_Image: {fileID: 0}
+    - m_Text: WaterfallColor
+      m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1502622632}
-        m_MethodName: UpdateSlider
+        m_MethodName: UpdateInput
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4866,6 +4868,21 @@ Prefab:
     - target: {fileID: 114101047144409956, guid: 6611077c8f897497e85202e9d1a3e874,
         type: 2}
       propertyPath: _temp2
+      value: 
+      objectReference: {fileID: 1558797687}
+    - target: {fileID: 114101047144409956, guid: 6611077c8f897497e85202e9d1a3e874,
+        type: 2}
+      propertyPath: _ocean
+      value: 
+      objectReference: {fileID: 538506519}
+    - target: {fileID: 114101047144409956, guid: 6611077c8f897497e85202e9d1a3e874,
+        type: 2}
+      propertyPath: _foam
+      value: 
+      objectReference: {fileID: 1912916369}
+    - target: {fileID: 114101047144409956, guid: 6611077c8f897497e85202e9d1a3e874,
+        type: 2}
+      propertyPath: _fog
       value: 
       objectReference: {fileID: 1558797687}
     m_RemovedComponents: []

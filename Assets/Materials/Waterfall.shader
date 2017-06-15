@@ -7,6 +7,7 @@
 		_WaterDropOff ("WaterDropOff", Range(2,32)) = 10
 		_WaterBend ("WaterBend", Range(0,80)) = 30
 		_WaterfallLength ("WaterfallLength", float) = 10
+		_WaterColor ("WaterColor", Color) = (0,0,1)
 	}
 	SubShader
 	{
@@ -42,6 +43,7 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
+			fixed4 _WaterColor;
 			float _WaterSpeed;
 			float _WaterDropOff;
 			float _WaterBend;
@@ -77,7 +79,9 @@
 			fixed4 frag (v2f i) : SV_Target
 			{
 				//Scrolling water texture
-				fixed4 col = tex2D(_MainTex, i.uv + float2(0,_Time.y * _WaterSpeed));
+				fixed4 mask = tex2D(_MainTex, i.uv + float2(0,_Time.y * _WaterSpeed));
+				fixed4 col = lerp(_WaterColor, fixed4(1,1,1,1), mask.r);
+				col.a = mask.a;
 				clip(col.a - 0.9);
 				// apply fog
 				UNITY_APPLY_FOG(i.fogCoord, col);

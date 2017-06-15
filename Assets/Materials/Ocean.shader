@@ -2,7 +2,7 @@
 {
 	Properties
 	{
-		_BaseColor ("BaseColor", Color) = (0,0,0,0)
+		_WaterColor ("BaseColor", Color) = (0,0,0,0)
 		_FoamColor ("FoamColor", Color) = (0,0,0,0)
 		_MainTex ("Texture", 2D) = "white" {}
 		_LayerSpeed ("Foam layer speed", Vector) = (0,0,0,0)
@@ -37,7 +37,7 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
-			float4 _BaseColor;
+			float4 _WaterColor;
 			float4 _FoamColor;
 			fixed4 _LayerSpeed;
 
@@ -69,7 +69,7 @@
 				float4 col1 = tex2D(_MainTex, 2 * fixed2(i.uv.x + _LayerSpeed.x * _Time.y, i.uv.y + _LayerSpeed.y * _Time.y));
 				float4 col2 = tex2D(_MainTex, fixed2(i.uv.x + _LayerSpeed.z * _Time.y, i.uv.y + _LayerSpeed.w * _Time.y));
 				float foamIntensity = 0.5 * col1.x + col2.x;
-				fixed4 col = _BaseColor + (foamIntensity * _FoamColor);
+				fixed4 col = _WaterColor + (foamIntensity * _FoamColor);
 				// apply fog	
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;

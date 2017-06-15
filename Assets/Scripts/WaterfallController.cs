@@ -10,18 +10,23 @@ public class WaterfallController : MonoBehaviour
 	private Slider _slider;
 	[SerializeField]
 	private InputField _inputField;
-	private GameObject _activeInput;
 
 	[SerializeField]
 	private GameObject[] _waterfallParts;
-	private List<Material> _waterfallMats = new List<Material> ();
-	private string _selectedProperty;
 	[SerializeField]
-	private GameObject _temp;
+	private GameObject _ocean;
 	[SerializeField]
-	private GameObject _temp2;
+	private GameObject _foam;
+	[SerializeField]
+	private GameObject _fog;
 	[SerializeField]
 	public List<Property> properties;
+
+	private List<Material> _waterfallMats = new List<Material> ();
+	private Material _oceanMat;
+
+	private GameObject _activeInput;
+	private Property _selectedProperty;
 
 	[System.Serializable]
 	public class RangeProperty
@@ -34,7 +39,8 @@ public class WaterfallController : MonoBehaviour
 	public enum PropertyType
 	{
 		RANGE,
-		FLOAT
+		FLOAT,
+		COLOR
 	}
 
 	[System.Serializable]
@@ -45,55 +51,82 @@ public class WaterfallController : MonoBehaviour
 		public RangeProperty range;
 	}
 
-	// Use this for initialization
+	//store the materials we want to change and set the slider to the default value
 	void Start ()
 	{
-		//_waterfallTopMat = GetComponent<SkinnedMeshRenderer> ().material;
+		_oceanMat = _ocean.GetComponent<MeshRenderer> ().material;
 		foreach (GameObject WaterfallPart in _waterfallParts) {
 			_waterfallMats.Add (WaterfallPart.GetComponent<SkinnedMeshRenderer> ().material);
 		}	
 
-		UpdateSlider (0);
+		UpdateInput (0);
 
 	}
 
-	// Update is called once per frame
+	//update the position of the foam and fog particle emiters
 	void Update ()
 	{
-		float value = _waterfallMats[0].GetFloat ("_WaterDropOff");
-		float value2 = _waterfallMats[0].GetFloat ("_WaterfallLength");
-		float x = (value2 / ((value * 0.1f))) - 8;
+		float waterDropOff = _waterfallMats [0].GetFloat ("_WaterDropOff");
+		float waterfallLength = _waterfallMats [0].GetFloat ("_WaterfallLength");
 
-		_temp2.transform.LookAt (transform.position);
-		Vector3 pos = _temp.transform.position;
+		//aim the fog emiter towards the base of the waterfall
+		_fog.transform.LookAt (transform.position);
+
+		//aproximate location of where the waterfall hits the ocean
+		float x = (waterfallLength / ((waterDropOff * 0.1f))) - 8;
+		Vector3 pos = _foam.transform.position;
 		pos.z = Mathf.Lerp (0, x, (transform.position.y - pos.y) * 0.05f);
-		_temp.transform.position = pos;
+		_foam.transform.position = pos;
 
 		
 	}
 
+	//set the float value of the currently selected property of the materials
 	public void SetSelectedProperty (float pValue)
 	{
+		if (_selectedProperty == null)
+			return;
 		foreach (Material WaterfallMat in _waterfallMats) {
-			WaterfallMat.SetFloat (_selectedProperty, pValue);
+			WaterfallMat.SetFloat (_selectedProperty.propertyName, pValue);
 		}
 	}
 
-	public void SetSelectedProperty (string pValue){
-		float value;
-		if (float.TryParse (pValue, out value)) {
-			foreach (Material WaterfallMat in _waterfallMats) {
-				WaterfallMat.SetFloat (_selectedProperty, value);
-			}
-		} else {
-			Debug.LogWarning ("invalid float");
-		}
-	}
-
-	public void UpdateSlider (int pValueID)
+	//converts the string value to float or color depending on the currently selected property
+	public void SetSelectedProperty (string pValue)
 	{
-		_selectedProperty = "";
-		if(_activeInput != null)
+		switch (_selectedProperty.type) {
+		case PropertyType.FLOAT:
+			float value;
+			if (float.TryParse (pValue, out value)) {
+				foreach (Material WaterfallMat in _waterfallMats) {
+					WaterfallMat.SetFloat (_selectedProperty.propertyName, value);
+				}
+			} else {
+				Debug.LogWarning ("invalid float");
+			}
+			break;
+		case PropertyType.COLOR:
+			Color colorvalue;
+			if (ColorUtility.TryParseHtmlString (pValue, out colorvalue)) {
+				_oceanMat.SetColor (_selectedProperty.propertyName, colorvalue);
+				foreach (Material WaterfallMat in _waterfallMats) {
+					WaterfallMat.SetColor (_selectedProperty.propertyName, colorvalue);
+				}
+			}else {
+				Debug.LogWarning ("invalid color");
+			}
+			break;
+		}
+		
+
+
+	}
+
+	//select a property and set the value of the slider/text field
+	public void UpdateInput (int pValueID)
+	{
+		_selectedProperty = null;
+		if (_activeInput != null)
 			_activeInput.SetActive (false);
 	
 		switch (properties [pValueID].type) {
@@ -101,13 +134,21 @@ public class WaterfallController : MonoBehaviour
 			_activeInput = _slider.gameObject;
 			_slider.minValue = properties [pValueID].range.min;
 			_slider.maxValue = properties [pValueID].range.max;
-			_selectedProperty = properties [pValueID].propertyName;
-			_slider.value = _waterfallMats[0].GetFloat (_selectedProperty);
+			_selectedProperty = properties [pValueID];
+			_slider.value = _waterfallMats [0].GetFloat (_selectedProperty.propertyName);
 			break;
 		case PropertyType.FLOAT:
 			_activeInput = _inputField.gameObject;
-			_selectedProperty = properties [pValueID].propertyName;
-			_inputField.text = _waterfallMats[0].GetFloat (_selectedProperty).ToString();
+			_inputField.contentType = InputField.ContentType.DecimalNumber;
+			_selectedProperty = properties [pValueID];
+			_inputField.text = _waterfallMats [0].GetFloat (_selectedProperty.propertyName).ToString ();
+			break;
+		
+		case PropertyType.COLOR:
+			_activeInput = _inputField.gameObject;
+			_inputField.contentType = InputField.ContentType.Standard;
+			_selectedProperty = properties [pValueID];
+			_inputField.text = "#" + ColorUtility.ToHtmlStringRGB (_waterfallMats [0].GetColor (_selectedProperty.propertyName));
 			break;
 		}
 		_activeInput.SetActive (true);

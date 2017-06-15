@@ -220,6 +220,11 @@ MonoBehaviour:
     range:
       min: 0
       max: 0
+  - type: 2
+    propertyName: _WaterColor
+    range:
+      min: 0
+      max: 0
 --- !u!137 &137350300309903846
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

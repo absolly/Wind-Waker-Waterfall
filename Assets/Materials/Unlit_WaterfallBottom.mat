@@ -27,4 +27,5 @@ Material:
     - _WaterForce: 1
     - _WaterSpeed: 0.66
     - _WaterfallLength: 10
-    m_Colors: []
+    m_Colors:
+    - _WaterColor: {r: 0.22352941, g: 0.56078434, b: 0.44313726, a: 1}
